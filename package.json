@@ -1,0 +1,12 @@
+{
+  "name": "multicut-salon-root",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Root proxy package for Multicut Salon",
+  "scripts": {
+    "install-deps": "npx pnpm -C \"multicut-salon (4)/artifacts/salon\" install",
+    "dev": "npx pnpm -C \"multicut-salon (4)/artifacts/salon\" run dev",
+    "build": "npx pnpm -C \"multicut-salon (4)/artifacts/salon\" run build",
+    "typecheck": "npx pnpm -C \"multicut-salon (4)/artifacts/salon\" run typecheck"
+  }
+}
