@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { uploadImage } from "@/lib/hooks";
 import { Button } from "@/components/ui/button";
 import { Upload, X, Image } from "lucide-react";
@@ -17,6 +17,10 @@ export default function ImageUpload({ bucket, folder, currentUrl, onUploaded, cl
   const [loading, setLoading] = useState(false);
   const [preview, setPreview] = useState(currentUrl || "");
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    setPreview(currentUrl || "");
+  }, [currentUrl]);
 
   const aspectClass = aspect === "square" ? "aspect-square" : aspect === "video" ? "aspect-video" : "min-h-[120px]";
 

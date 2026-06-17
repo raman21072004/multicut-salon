@@ -110,7 +110,7 @@ export default function AdminServices() {
                           </div>
                         </td>
                         <td className="px-4 py-3 text-muted-foreground">{s.category}</td>
-                        <td className="px-4 py-3 text-primary font-medium">${s.price}</td>
+                        <td className="px-4 py-3 text-primary font-medium">₹{s.price}</td>
                         <td className="px-4 py-3 text-muted-foreground">{s.duration} min</td>
                         <td className="px-4 py-3">
                           <button onClick={() => toggleFeatured(s.id, s.featured)} title="Toggle featured"
@@ -162,7 +162,7 @@ export default function AdminServices() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <Label>Price ($)</Label>
+                <Label>Price (₹)</Label>
                 <Input type="number" value={form.price} onChange={e => setForm(f => ({ ...f, price: Number(e.target.value) }))} className="bg-background" />
               </div>
               <div className="space-y-1.5">

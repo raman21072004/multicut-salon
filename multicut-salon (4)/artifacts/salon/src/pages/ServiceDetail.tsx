@@ -5,7 +5,7 @@ import { Service } from "@/lib/types";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { Clock, DollarSign, ArrowLeft, Tag } from "lucide-react";
+import { Clock, IndianRupee, ArrowLeft, Tag } from "lucide-react";
 import { handleImageError } from "@/lib/imageFallback";
 
 export default function ServiceDetail() {
@@ -16,8 +16,12 @@ export default function ServiceDetail() {
 
   useEffect(() => {
     if (!slug) return;
-    // Try slug first, then id
-    supabase.from("services").select("*").or(`slug.eq.${slug},id.eq.${slug}`).single().then(({ data }) => {
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slug);
+    const query = isUuid
+      ? supabase.from("services").select("*").or(`slug.eq.${slug},id.eq.${slug}`).single()
+      : supabase.from("services").select("*").eq("slug", slug).single();
+
+    query.then(({ data }) => {
       if (data) {
         setService(data);
         supabase.from("services").select("*").eq("category", data.category).neq("id", data.id).limit(3)
@@ -67,10 +71,10 @@ export default function ServiceDetail() {
               <p className="text-muted-foreground leading-relaxed mb-8">{service.description}</p>
               <div className="grid grid-cols-2 gap-4 mb-8">
                 <div className="bg-card border border-border rounded-xl p-4 flex items-center gap-3">
-                  <DollarSign className="w-5 h-5 text-primary" />
+                  <IndianRupee className="w-5 h-5 text-primary" />
                   <div>
                     <div className="text-xs text-muted-foreground">Price</div>
-                    <div className="text-xl font-bold text-primary">${service.price}</div>
+                    <div className="text-xl font-bold text-primary">₹{service.price}</div>
                   </div>
                 </div>
                 <div className="bg-card border border-border rounded-xl p-4 flex items-center gap-3">
@@ -108,7 +112,7 @@ export default function ServiceDetail() {
                       <div className="text-xs text-primary font-semibold uppercase mb-1">{s.category}</div>
                       <h3 className="font-semibold">{s.name}</h3>
                       <div className="flex justify-between items-center mt-2">
-                        <span className="text-primary font-bold">${s.price}</span>
+                        <span className="text-primary font-bold">₹{s.price}</span>
                         <span className="text-xs text-muted-foreground">{s.duration} min</span>
                       </div>
                     </div>

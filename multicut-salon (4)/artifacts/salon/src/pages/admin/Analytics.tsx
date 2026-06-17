@@ -6,7 +6,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   LineChart, Line, PieChart, Pie, Cell, Legend
 } from "recharts";
-import { TrendingUp, Calendar, Clock, DollarSign, Scissors, Users, Image, MessageSquare } from "lucide-react";
+import { TrendingUp, Calendar, Clock, IndianRupee, Scissors, Users, Image, MessageSquare } from "lucide-react";
 
 interface Stats {
   total: number; pending: number; confirmed: number; cancelled: number; completed: number;
@@ -100,7 +100,7 @@ export default function AdminAnalytics() {
     { label: "Total Bookings", value: stats.total, icon: Calendar, color: "text-primary" },
     { label: "Pending Review", value: stats.pending, icon: Clock, color: "text-yellow-400" },
     { label: "Completed", value: stats.completed, icon: TrendingUp, color: "text-green-400" },
-    { label: "Est. Revenue", value: `$${stats.revenue.toLocaleString()}`, icon: DollarSign, color: "text-primary" },
+    { label: "Est. Revenue", value: `₹${stats.revenue.toLocaleString()}`, icon: IndianRupee, color: "text-primary" },
     { label: "Services", value: stats.services, icon: Scissors, color: "text-primary" },
     { label: "Stylists", value: stats.stylists, icon: Users, color: "text-primary" },
     { label: "Gallery Images", value: stats.gallery, icon: Image, color: "text-primary" },
@@ -151,7 +151,7 @@ export default function AdminAnalytics() {
                   <YAxis yAxisId="right" orientation="right" tick={chartStyle.axis} />
                   <Tooltip contentStyle={chartStyle.tooltip} />
                   <Bar yAxisId="left" dataKey="bookings" fill="hsl(var(--primary))" radius={[4,4,0,0]} name="Bookings" />
-                  <Bar yAxisId="right" dataKey="revenue" fill="hsl(var(--accent))" radius={[4,4,0,0]} name="Revenue ($)" />
+                  <Bar yAxisId="right" dataKey="revenue" fill="hsl(var(--accent))" radius={[4,4,0,0]} name="Revenue (₹)" />
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
@@ -220,8 +220,8 @@ export default function AdminAnalytics() {
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 py-2">
               {[
-                { label: "Total Revenue", value: `$${stats.revenue.toLocaleString()}` },
-                { label: "Avg per Booking", value: stats.completed ? `$${(stats.revenue / stats.completed).toFixed(0)}` : "$0" },
+                { label: "Total Revenue", value: `₹${stats.revenue.toLocaleString()}` },
+                { label: "Avg per Booking", value: stats.completed ? `₹${(stats.revenue / stats.completed).toFixed(0)}` : "₹0" },
                 { label: "Completion Rate", value: stats.total ? `${Math.round((stats.completed / stats.total) * 100)}%` : "0%" },
                 { label: "Cancellation Rate", value: stats.total ? `${Math.round((stats.cancelled / stats.total) * 100)}%` : "0%" },
               ].map(({ label, value }) => (

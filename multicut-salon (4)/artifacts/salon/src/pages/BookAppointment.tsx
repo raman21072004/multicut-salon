@@ -142,7 +142,7 @@ export default function BookAppointment() {
                 <Select value={form.service_id} onValueChange={v => setForm(f => ({ ...f, service_id: v }))}>
                   <SelectTrigger className="bg-background"><SelectValue placeholder="Select a service" /></SelectTrigger>
                   <SelectContent>
-                    {services.map(s => <SelectItem key={s.id} value={s.id}>{s.name} — ${s.price}</SelectItem>)}
+                    {services.map(s => <SelectItem key={s.id} value={s.id}>{s.name} — ₹{s.price}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
