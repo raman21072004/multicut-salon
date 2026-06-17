@@ -297,3 +297,28 @@ on conflict do nothing;
 -- service-images   (public)
 -- logos            (public)
 -- website-assets   (public)
+
+-- Enable RLS Policies for Storage Buckets
+create policy "Allow authenticated uploads to service-images" on storage.objects for insert to authenticated with check (bucket_id = 'service-images');
+create policy "Allow authenticated uploads to gallery-images" on storage.objects for insert to authenticated with check (bucket_id = 'gallery-images');
+create policy "Allow authenticated uploads to stylist-images" on storage.objects for insert to authenticated with check (bucket_id = 'stylist-images');
+create policy "Allow authenticated uploads to logos" on storage.objects for insert to authenticated with check (bucket_id = 'logos');
+create policy "Allow authenticated uploads to website-assets" on storage.objects for insert to authenticated with check (bucket_id = 'website-assets');
+
+create policy "Allow authenticated updates to service-images" on storage.objects for update to authenticated with check (bucket_id = 'service-images');
+create policy "Allow authenticated updates to gallery-images" on storage.objects for update to authenticated with check (bucket_id = 'gallery-images');
+create policy "Allow authenticated updates to stylist-images" on storage.objects for update to authenticated with check (bucket_id = 'stylist-images');
+create policy "Allow authenticated updates to logos" on storage.objects for update to authenticated with check (bucket_id = 'logos');
+create policy "Allow authenticated updates to website-assets" on storage.objects for update to authenticated with check (bucket_id = 'website-assets');
+
+create policy "Allow authenticated deletes to service-images" on storage.objects for delete to authenticated using (bucket_id = 'service-images');
+create policy "Allow authenticated deletes to gallery-images" on storage.objects for delete to authenticated using (bucket_id = 'gallery-images');
+create policy "Allow authenticated deletes to stylist-images" on storage.objects for delete to authenticated using (bucket_id = 'stylist-images');
+create policy "Allow authenticated deletes to logos" on storage.objects for delete to authenticated using (bucket_id = 'logos');
+create policy "Allow authenticated deletes to website-assets" on storage.objects for delete to authenticated using (bucket_id = 'website-assets');
+
+create policy "Allow public read access to service-images" on storage.objects for select to public using (bucket_id = 'service-images');
+create policy "Allow public read access to gallery-images" on storage.objects for select to public using (bucket_id = 'gallery-images');
+create policy "Allow public read access to stylist-images" on storage.objects for select to public using (bucket_id = 'stylist-images');
+create policy "Allow public read access to logos" on storage.objects for select to public using (bucket_id = 'logos');
+create policy "Allow public read access to website-assets" on storage.objects for select to public using (bucket_id = 'website-assets');
