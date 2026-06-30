@@ -6,7 +6,7 @@ import { fallbackServices } from "@/lib/fallbackData";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { handleImageError } from "@/lib/imageFallback";
+import { handleImageError, shouldShowServiceImage } from "@/lib/imageFallback";
 
 // Category metadata: icon + Supabase storage image key
 const CATEGORY_META: Record<string, { icon: string; imageKey: string }> = {
@@ -211,34 +211,43 @@ export default function Services() {
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {(activeCategory ? grouped[activeCategory] ?? [] : services).map(s => (
-                    <Link key={s.id} href={`/services/${s.slug || s.id}`}>
-                      <div className="group bg-card border border-border rounded-2xl overflow-hidden hover:border-primary/40 transition-all duration-300 hover:-translate-y-1 cursor-pointer h-full flex flex-col">
-                        <div className="aspect-video overflow-hidden bg-secondary">
-                          <img
-                            src={s.image_url || "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=600&q=80"}
-                            alt={s.name}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                            onError={handleImageError}
-                          />
-                        </div>
-                        <div className="p-6 flex-1 flex flex-col">
-                          <div className="flex items-start justify-between mb-3">
-                            <div>
-                              <span className="text-xs text-primary font-semibold tracking-wider uppercase">{s.category}</span>
-                              <h3 className="text-lg font-semibold mt-1">{s.name}</h3>
+                  {(activeCategory ? grouped[activeCategory] ?? [] : services).map(s => {
+                    const showImage = shouldShowServiceImage(s);
+                    return (
+                      <Link key={s.id} href={`/services/${s.slug || s.id}`}>
+                        <div className="group bg-card border border-border rounded-2xl overflow-hidden hover:border-primary/40 transition-all duration-300 hover:-translate-y-1 cursor-pointer h-full flex flex-col">
+                          {showImage && (
+                            <div className="aspect-video overflow-hidden bg-secondary border-b border-border/50">
+                              <img
+                                src={s.image_url}
+                                alt={s.name}
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                onError={handleImageError}
+                              />
                             </div>
-                            <div className="text-right shrink-0 ml-3">
-                              <div className="text-xl font-bold text-primary">₹{s.price}</div>
-                              {s.duration > 0 && <div className="text-xs text-muted-foreground">{s.duration} min</div>}
+                          )}
+                          <div className="p-6 flex-1 flex flex-col justify-between">
+                            <div>
+                              <div className="flex items-start justify-between mb-3">
+                                <div className="min-w-0 pr-2">
+                                  <span className="text-xs text-primary font-semibold tracking-wider uppercase">{s.category}</span>
+                                  <h3 className="text-lg font-semibold mt-1 truncate" title={s.name}>{s.name}</h3>
+                                </div>
+                                <div className="text-right shrink-0 ml-3">
+                                  <div className="text-xl font-bold text-primary">₹{s.price}</div>
+                                  {s.duration > 0 && <div className="text-xs text-muted-foreground">{s.duration} min</div>}
+                                </div>
+                              </div>
+                              <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3 mb-4">{s.description}</p>
+                            </div>
+                            <div className="text-sm text-primary font-medium flex items-center gap-1 group-hover:gap-2 transition-all mt-auto pt-2 border-t border-border/30">
+                              View Details <span className="transition-transform group-hover:translate-x-1">→</span>
                             </div>
                           </div>
-                          <p className="text-sm text-muted-foreground flex-1 leading-relaxed">{s.description}</p>
-                          <div className="mt-4 text-sm text-primary font-medium">View Details →</div>
                         </div>
-                      </div>
-                    </Link>
-                  ))}
+                      </Link>
+                    );
+                  })}
                 </div>
               )}
             </div>

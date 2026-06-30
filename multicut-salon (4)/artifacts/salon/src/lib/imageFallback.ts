@@ -1,3 +1,5 @@
+import { Service } from "./types";
+
 export const imageFallbackSrc =
   "data:image/svg+xml;charset=UTF-8," +
   encodeURIComponent(`
@@ -13,3 +15,38 @@ export const imageFallbackSrc =
 export function handleImageError(event: React.SyntheticEvent<HTMLImageElement, Event>) {
   event.currentTarget.src = imageFallbackSrc;
 }
+
+export const CATEGORY_ICONS: Record<string, string> = {
+  "Hair Cuts": "✂️",
+  "Beard & Shave": "🪒",
+  "Hair Wash & Head Massage": "🚿",
+  "Hair Spa": "💆",
+  "Hair Colour": "🎨",
+  "Beard Colour": "🖌️",
+  "Hair Treatment": "⚗️",
+  "Hair Curling & Perm": "🌀",
+  "Styling": "💈",
+  "Facial & Clean-Up": "🧖",
+  "Face Care": "🫧",
+  "Threading & Waxing": "🧵",
+  "Arm & Body Care": "💪",
+  "Manicure & Pedicure": "💅",
+};
+
+export function getCategoryIcon(category: string): string {
+  return CATEGORY_ICONS[category] || "💈";
+}
+
+export function shouldShowServiceImage(service: Service | null | undefined): boolean {
+  if (!service || !service.image_url) return false;
+  
+  // Custom uploaded images (from Supabase storage) are shown regardless of featured status.
+  const isCustomUpload = service.image_url.includes("/storage/v1/object/public/") || 
+                         (!service.image_url.includes("images.unsplash.com") && 
+                          !service.image_url.startsWith("http://localhost") &&
+                          service.image_url.trim().length > 0);
+                         
+  // We only show images for featured/important services or custom-uploaded ones.
+  return !!service.featured || isCustomUpload;
+}
+

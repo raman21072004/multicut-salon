@@ -8,7 +8,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Star, ChevronDown, ArrowRight, Scissors } from "lucide-react";
-import { handleImageError } from "@/lib/imageFallback";
+import { handleImageError, shouldShowServiceImage, getCategoryIcon } from "@/lib/imageFallback";
 
 export default function Home() {
   const { settings } = useSalonSettings();
@@ -98,30 +98,42 @@ export default function Home() {
             </Link>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {services.map(s => (
-              <Link key={s.id} href={`/services/${s.slug || s.id}`}>
-                <div className="group bg-card border border-border rounded-2xl overflow-hidden hover:border-primary/40 transition-all duration-300 hover:-translate-y-1 cursor-pointer">
-                  <div className="aspect-video overflow-hidden bg-secondary">
-                    <img
-                      src={s.image_url || "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=600&q=80"}
-                      alt={s.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      onError={handleImageError}
-                    />
-                  </div>
-                  <div className="p-5">
-                    <div className="flex items-start justify-between">
+            {services.map(s => {
+              const showImage = shouldShowServiceImage(s);
+              return (
+                <Link key={s.id} href={`/services/${s.slug || s.id}`}>
+                  <div className="group bg-card border border-border rounded-2xl overflow-hidden hover:border-primary/40 transition-all duration-300 hover:-translate-y-1 cursor-pointer flex flex-col h-full">
+                    {showImage ? (
+                      <div className="aspect-video overflow-hidden bg-secondary border-b border-border/50">
+                        <img
+                          src={s.image_url}
+                          alt={s.name}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          onError={handleImageError}
+                        />
+                      </div>
+                    ) : (
+                      <div className="aspect-video bg-gradient-to-br from-primary/10 to-accent/5 flex items-center justify-center p-6 border-b border-border/50">
+                        <span className="text-4xl">{getCategoryIcon(s.category)}</span>
+                      </div>
+                    )}
+                    <div className="p-6 flex-1 flex flex-col justify-between">
                       <div>
                         <span className="text-xs text-primary font-semibold tracking-wider uppercase">{s.category}</span>
-                        <h3 className="text-base font-semibold mt-1">{s.name}</h3>
-                        <p className="text-xs text-muted-foreground mt-1">{s.duration} min</p>
+                        <h3 className="text-base font-semibold mt-1 line-clamp-1">{s.name}</h3>
+                        {s.description && (
+                          <p className="text-xs text-muted-foreground mt-2 line-clamp-2 leading-relaxed">{s.description}</p>
+                        )}
                       </div>
-                      <div className="text-xl font-bold text-primary">₹{s.price}</div>
+                      <div className="flex items-center justify-between mt-4 pt-3 border-t border-border/30">
+                        <span className="text-xs text-muted-foreground">{s.duration} min</span>
+                        <div className="text-lg font-bold text-primary">₹{s.price}</div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </Link>
-            ))}
+                </Link>
+              );
+            })}
           </div>
           <div className="mt-8 text-center md:hidden">
             <Button asChild variant="outline">

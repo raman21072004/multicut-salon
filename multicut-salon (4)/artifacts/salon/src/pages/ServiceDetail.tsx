@@ -6,7 +6,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Clock, IndianRupee, ArrowLeft, Tag } from "lucide-react";
-import { handleImageError } from "@/lib/imageFallback";
+import { handleImageError, shouldShowServiceImage, getCategoryIcon } from "@/lib/imageFallback";
 import { formatPrice } from "@/lib/utils";
 import { fallbackServices } from "@/lib/fallbackData";
 
@@ -73,10 +73,20 @@ export default function ServiceDetail() {
             <ArrowLeft className="w-4 h-4" /> Back to Services
           </Link>
           <div className="grid md:grid-cols-2 gap-12 items-start">
-            <div className="aspect-video md:aspect-[4/3] rounded-2xl overflow-hidden border border-border shadow-xl">
-              <img src={service.image_url || "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=800&q=80"}
-                alt={service.name} className="w-full h-full object-cover" onError={handleImageError} />
-            </div>
+            {shouldShowServiceImage(service) ? (
+              <div className="aspect-video md:aspect-[4/3] rounded-2xl overflow-hidden border border-border shadow-xl">
+                <img src={service.image_url}
+                  alt={service.name} className="w-full h-full object-cover" onError={handleImageError} />
+              </div>
+            ) : (
+              <div className="aspect-video md:aspect-[4/3] rounded-2xl border border-border bg-gradient-to-br from-primary/10 via-card to-accent/5 flex flex-col items-center justify-center p-8 shadow-xl text-center">
+                <div className="w-20 h-20 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center mb-4">
+                  <span className="text-4xl">{getCategoryIcon(service.category)}</span>
+                </div>
+                <div className="text-lg font-semibold text-primary">{service.category}</div>
+                <p className="text-xs text-muted-foreground mt-1">Premium Multicut Salon Experience</p>
+              </div>
+            )}
             <div>
               <span className="inline-flex items-center gap-1.5 text-xs text-primary font-semibold tracking-wider uppercase mb-3">
                 <Tag className="w-3 h-3" />{service.category}
@@ -115,24 +125,35 @@ export default function ServiceDetail() {
           <div className="max-w-5xl mx-auto">
             <h2 className="font-serif text-2xl font-bold mb-8">Similar Services</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-              {related.map(s => (
-                <Link key={s.id} href={`/services/${s.slug || s.id}`}>
-                  <div className="group bg-card border border-border rounded-xl overflow-hidden hover:border-primary/40 transition-all hover:-translate-y-1 cursor-pointer">
-                    <div className="aspect-video overflow-hidden bg-secondary">
-                      <img src={s.image_url || "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=600&q=80"}
-                        alt={s.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onError={handleImageError} />
-                    </div>
-                    <div className="p-4">
-                      <div className="text-xs text-primary font-semibold uppercase mb-1">{s.category}</div>
-                      <h3 className="font-semibold">{s.name}</h3>
-                      <div className="flex justify-between items-center mt-2">
-                        <span className="text-primary font-bold">{formatPrice(s.price)}</span>
-                        <span className="text-xs text-muted-foreground">{s.duration} min</span>
+              {related.map(s => {
+                const showImage = shouldShowServiceImage(s);
+                return (
+                  <Link key={s.id} href={`/services/${s.slug || s.id}`}>
+                    <div className="group bg-card border border-border rounded-xl overflow-hidden hover:border-primary/40 transition-all hover:-translate-y-1 cursor-pointer flex flex-col h-full">
+                      {showImage ? (
+                        <div className="aspect-video overflow-hidden bg-secondary border-b border-border/50">
+                          <img src={s.image_url}
+                            alt={s.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onError={handleImageError} />
+                        </div>
+                      ) : (
+                        <div className="aspect-video bg-gradient-to-br from-primary/10 to-accent/5 flex items-center justify-center p-4 border-b border-border/50">
+                          <span className="text-3xl">{getCategoryIcon(s.category)}</span>
+                        </div>
+                      )}
+                      <div className="p-4 flex-1 flex flex-col justify-between">
+                        <div>
+                          <div className="text-xs text-primary font-semibold uppercase mb-1">{s.category}</div>
+                          <h3 className="font-semibold text-sm line-clamp-1">{s.name}</h3>
+                        </div>
+                        <div className="flex justify-between items-center mt-3 pt-2 border-t border-border/30">
+                          <span className="text-primary font-bold text-sm">{formatPrice(s.price)}</span>
+                          <span className="text-xs text-muted-foreground">{s.duration} min</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </Link>
-              ))}
+                  </Link>
+                );
+              })}
             </div>
           </div>
         </section>
