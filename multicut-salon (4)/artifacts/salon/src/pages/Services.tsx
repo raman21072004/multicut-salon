@@ -6,7 +6,7 @@ import { fallbackServices } from "@/lib/fallbackData";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { handleImageError, shouldShowServiceImage } from "@/lib/imageFallback";
+import { handleImageError, shouldShowServiceImage, CATEGORY_FALLBACK_IMAGES } from "@/lib/imageFallback";
 
 // Category metadata: icon + Supabase storage image key
 const CATEGORY_META: Record<string, { icon: string; imageKey: string }> = {
@@ -118,13 +118,21 @@ export default function Services() {
                   return (
                     <div key={cat} className="border border-border rounded-2xl overflow-hidden bg-card transition-all">
                       {/* Category image banner — only shown when open and image exists */}
-                      {isOpen && imgUrl && (
-                        <div className="w-full h-44 overflow-hidden">
+                      {isOpen && (
+                        <div className="w-full h-44 overflow-hidden bg-secondary/20 relative">
                           <img
-                            src={imgUrl}
+                            src={imgUrl || CATEGORY_FALLBACK_IMAGES[cat]}
                             alt={cat}
                             className="w-full h-full object-cover"
-                            onError={e => { (e.target as HTMLImageElement).style.display = "none"; }}
+                            onError={e => {
+                              const target = e.currentTarget;
+                              const fallback = CATEGORY_FALLBACK_IMAGES[cat];
+                              if (fallback && target.src !== fallback) {
+                                target.src = fallback;
+                              } else {
+                                target.style.display = "none";
+                              }
+                            }}
                           />
                         </div>
                       )}
@@ -180,12 +188,13 @@ export default function Services() {
       {/* ── GRID VIEW ─────────────────────────────────────────────────────── */}
       {viewMode === "grid" && (
         <>
+
           {/* Category filter pills */}
           <section className="px-6 pb-8">
-            <div className="max-w-7xl mx-auto flex gap-2 flex-wrap">
+            <div className="max-w-7xl mx-auto flex gap-2 overflow-x-auto flex-nowrap md:flex-wrap pb-4 md:pb-0 scrollbar-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
               <button
                 onClick={() => setActiveCategory(null)}
-                className={`px-4 py-1.5 rounded-full text-sm font-medium border transition-colors ${!activeCategory ? "bg-primary text-primary-foreground border-primary" : "border-border text-muted-foreground hover:border-primary/50 hover:text-foreground"}`}
+                className={`px-4 py-1.5 rounded-full text-sm font-medium border transition-colors shrink-0 ${!activeCategory ? "bg-primary text-primary-foreground border-primary" : "border-border text-muted-foreground hover:border-primary/50 hover:text-foreground"}`}
               >
                 All
               </button>
@@ -193,7 +202,7 @@ export default function Services() {
                 <button
                   key={cat}
                   onClick={() => setActiveCategory(cat === activeCategory ? null : cat)}
-                  className={`px-4 py-1.5 rounded-full text-sm font-medium border transition-colors ${activeCategory === cat ? "bg-primary text-primary-foreground border-primary" : "border-border text-muted-foreground hover:border-primary/50 hover:text-foreground"}`}
+                  className={`px-4 py-1.5 rounded-full text-sm font-medium border transition-colors shrink-0 ${activeCategory === cat ? "bg-primary text-primary-foreground border-primary" : "border-border text-muted-foreground hover:border-primary/50 hover:text-foreground"}`}
                 >
                   {CATEGORY_META[cat]?.icon} {cat}
                 </button>

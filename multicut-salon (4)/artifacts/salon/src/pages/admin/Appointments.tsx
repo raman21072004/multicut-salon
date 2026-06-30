@@ -119,8 +119,36 @@ export default function AdminAppointments() {
                       <td className="px-4 py-3">
                         <div className="font-medium">{a.name}</div>
                         <div className="text-xs text-muted-foreground">{a.phone}</div>
+                        {(() => {
+                          const userNotes = a.notes?.includes("\n\nNotes:\n")
+                            ? a.notes.split("\n\nNotes:\n")[1]
+                            : (!a.notes?.startsWith("Services Booked:") ? a.notes : "");
+                          if (userNotes && userNotes.trim().length > 0) {
+                            return (
+                              <div className="text-xs text-muted-foreground italic mt-1.5 border-t border-border/40 pt-1">
+                                💬 "{userNotes}"
+                              </div>
+                            );
+                          }
+                          return null;
+                        })()}
                       </td>
-                      <td className="px-4 py-3 text-muted-foreground">{a.services?.name ?? "—"}</td>
+                      <td className="px-4 py-3 text-muted-foreground">
+                        {(() => {
+                          if (a.notes?.startsWith("Services Booked: ")) {
+                            const lines = a.notes.split("\n");
+                            const servicesLine = lines[0].replace("Services Booked: ", "");
+                            const totalLine = lines[1] || "";
+                            return (
+                              <div className="space-y-1">
+                                <div className="font-medium text-foreground">{servicesLine}</div>
+                                <div className="text-xs text-primary font-medium">{totalLine}</div>
+                              </div>
+                            );
+                          }
+                          return a.services?.name ?? "—";
+                        })()}
+                      </td>
                       <td className="px-4 py-3 text-muted-foreground">{a.stylists?.name ?? "—"}</td>
                       <td className="px-4 py-3 text-muted-foreground">{a.date} {a.time}</td>
                       <td className="px-4 py-3">

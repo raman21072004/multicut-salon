@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { CheckCircle, Calendar, Clock, Scissors } from "lucide-react";
+import { CheckCircle, Calendar, Clock, Scissors, X, Plus } from "lucide-react";
 import { fallbackServices, fallbackStylists } from "@/lib/fallbackData";
 import { isMissingTableError, queueLocalAppointment } from "@/lib/offlineQueue";
 import { formatPrice } from "@/lib/utils";
@@ -26,9 +26,9 @@ export default function BookAppointment() {
   const [stylists, setStylists] = useState<Stylist[]>([]);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [selectedServiceIds, setSelectedServiceIds] = useState<string[]>([]);
   const [form, setForm] = useState({
     name: "", phone: "", email: "",
-    service_id: params.get("service") || "",
     stylist_id: params.get("stylist") || "",
     date: "", time: "", notes: ""
   });
@@ -43,19 +43,40 @@ export default function BookAppointment() {
     });
   }, []);
 
+  useEffect(() => {
+    const querySvc = params.get("service");
+    if (querySvc && !selectedServiceIds.includes(querySvc)) {
+      setSelectedServiceIds([querySvc]);
+    }
+  }, [search]);
+
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.name || !form.date || !form.time) {
       toast({ title: "Please fill all required fields", variant: "destructive" }); return;
     }
+    if (selectedServiceIds.length === 0) {
+      toast({ title: "Please select at least one service", variant: "destructive" }); return;
+    }
     setLoading(true);
+
+    const selectedServicesObj = selectedServiceIds.map(id => services.find(s => s.id === id)).filter(Boolean) as Service[];
+    const primaryServiceId = selectedServicesObj[0]?.id || null;
+    const totalCost = selectedServicesObj.reduce((acc, s) => acc + s.price, 0);
+    const totalDuration = selectedServicesObj.reduce((acc, s) => acc + s.duration, 0);
+
+    const servicesListText = selectedServicesObj.map(s => `${s.name} (₹${s.price})`).join(", ");
+    const servicesHeader = `Services Booked: ${servicesListText}\nTotal: ₹${totalCost} | Duration: ${totalDuration} mins`;
+    const fullNotes = servicesHeader + (form.notes ? `\n\nNotes:\n${form.notes}` : "");
+
     const payload = {
       name: form.name, phone: form.phone, email: form.email,
-      service_id: form.service_id || null,
+      service_id: primaryServiceId,
       stylist_id: form.stylist_id || null,
-      date: form.date, time: form.time, notes: form.notes,
+      date: form.date, time: form.time, notes: fullNotes,
       status: "pending"
     };
+
     const { error } = await supabase.from("appointments").insert(payload);
     setLoading(false);
     if (error) {
@@ -82,7 +103,11 @@ export default function BookAppointment() {
           <p className="text-muted-foreground mb-2">Thank you, <strong>{form.name}</strong>!</p>
           <p className="text-muted-foreground mb-8">We've received your appointment request for <strong>{form.date}</strong> at <strong>{form.time}</strong>. We'll confirm within 24 hours via phone or email.</p>
           <div className="flex gap-4 justify-center">
-            <Button onClick={() => { setSubmitted(false); setForm({ name:"",phone:"",email:"",service_id:"",stylist_id:"",date:"",time:"",notes:"" }); }}>Book Another</Button>
+            <Button onClick={() => {
+              setSubmitted(false);
+              setSelectedServiceIds([]);
+              setForm({ name: "", phone: "", email: "", stylist_id: "", date: "", time: "", notes: "" });
+            }}>Book Another</Button>
             <Button asChild variant="outline">
               <Link href="/">Back to Home</Link>
             </Button>
@@ -138,14 +163,28 @@ export default function BookAppointment() {
             <div className="space-y-1.5">
               <Label>Email</Label>
               <Input type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} placeholder="you@example.com" className="bg-background" />
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            </div>            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div className="space-y-1.5">
-                <Label>Service</Label>
-                <Select value={form.service_id} onValueChange={v => setForm(f => ({ ...f, service_id: v }))}>
-                  <SelectTrigger className="bg-background"><SelectValue placeholder="Select a service" /></SelectTrigger>
+                <Label>Select Services (Add multiple if needed)</Label>
+                <Select
+                  value=""
+                  onValueChange={v => {
+                    if (v && !selectedServiceIds.includes(v)) {
+                      setSelectedServiceIds(prev => [...prev, v]);
+                    }
+                  }}
+                >
+                  <SelectTrigger className="bg-background">
+                    <SelectValue placeholder="Choose a service to add..." />
+                  </SelectTrigger>
                   <SelectContent>
-                    {services.map(s => <SelectItem key={s.id} value={s.id}>{s.name} — {formatPrice(s.price)}</SelectItem>)}
+                    {services
+                      .filter(s => !selectedServiceIds.includes(s.id))
+                      .map(s => (
+                        <SelectItem key={s.id} value={s.id}>
+                          {s.name} — {formatPrice(s.price)}
+                        </SelectItem>
+                      ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -159,6 +198,52 @@ export default function BookAppointment() {
                 </Select>
               </div>
             </div>
+
+            {selectedServiceIds.length > 0 && (
+              <div className="bg-secondary/20 border border-border p-4 rounded-xl space-y-3">
+                <Label className="text-xs uppercase tracking-wider text-muted-foreground">Selected Services</Label>
+                <div className="space-y-2">
+                  {selectedServiceIds.map(id => {
+                    const s = services.find(srv => srv.id === id);
+                    if (!s) return null;
+                    return (
+                      <div key={id} className="flex items-center justify-between bg-background border border-border/60 px-3 py-2.5 rounded-lg text-sm transition-all hover:border-primary/30">
+                        <div className="font-medium flex items-center gap-2">
+                          <Scissors className="w-3.5 h-3.5 text-primary shrink-0" />
+                          <span>{s.name}</span>
+                        </div>
+                        <div className="flex items-center gap-3 shrink-0">
+                          <span className="text-primary font-semibold">₹{s.price}</span>
+                          <span className="text-xs text-muted-foreground border-l border-border pl-3">{s.duration} min</span>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setSelectedServiceIds(prev => prev.filter(x => x !== id))}
+                            className="h-6 w-6 p-0 hover:text-destructive hover:bg-destructive/10 rounded-full"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                          </Button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+                
+                <div className="border-t border-border pt-3 flex items-center justify-between text-sm font-semibold">
+                  <div className="text-muted-foreground">Total Summary</div>
+                  <div className="flex items-center gap-4">
+                    <span>
+                      Duration: <span className="text-foreground font-bold">{selectedServiceIds.reduce((acc, id) => acc + (services.find(s => s.id === id)?.duration || 0), 0)} min</span>
+                    </span>
+                    <span>
+                      Price: <span className="text-primary font-bold">₹{selectedServiceIds.reduce((acc, id) => acc + (services.find(s => s.id === id)?.price || 0), 0)}</span>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div className="space-y-1.5">
                 <Label>Date *</Label>

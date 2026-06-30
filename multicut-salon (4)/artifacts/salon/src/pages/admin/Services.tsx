@@ -133,9 +133,8 @@ export default function AdminServices() {
             )}
         </div>
       </div>
-
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="bg-card border-border max-w-lg max-h-[90vh] overflow-y-auto">
+        <DialogContent className="bg-card border-border max-w-lg w-[95vw] sm:w-full max-h-[90vh] overflow-y-auto">
           <DialogHeader><DialogTitle>{editing ? "Edit Service" : "Add Service"}</DialogTitle></DialogHeader>
           <div className="space-y-4 pt-2">
             <div className="space-y-1.5">
@@ -145,7 +144,7 @@ export default function AdminServices() {
               <Input value={form.image_url} onChange={e => setForm(f => ({ ...f, image_url: e.target.value }))}
                 placeholder="Or paste URL..." className="bg-background mt-2" />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <Label>Name *</Label>
                 <Input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value, slug: slugify(e.target.value) }))}
@@ -161,7 +160,7 @@ export default function AdminServices() {
               <Input value={form.slug} onChange={e => setForm(f => ({ ...f, slug: e.target.value }))} className="bg-background font-mono text-sm" />
               <p className="text-xs text-muted-foreground">Used in URL: /services/{form.slug || "..."}</p>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <Label>Price (₹)</Label>
                 <Input type="number" value={form.price} onChange={e => setForm(f => ({ ...f, price: Number(e.target.value) }))} className="bg-background" />

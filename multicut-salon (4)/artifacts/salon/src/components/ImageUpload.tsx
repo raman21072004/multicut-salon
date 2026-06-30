@@ -48,7 +48,7 @@ export default function ImageUpload({ bucket, folder, currentUrl, onUploaded, cl
   return (
     <div className={className}>
       <div
-        className={`relative ${aspectClass} rounded-xl border-2 border-dashed border-border bg-secondary/30 overflow-hidden cursor-pointer hover:border-primary/50 transition-colors group`}
+        className={`relative ${aspectClass} min-h-[160px] flex items-center justify-center rounded-xl border-2 border-dashed border-border bg-secondary/30 overflow-hidden cursor-pointer hover:border-primary/50 transition-colors group`}
         onClick={() => inputRef.current?.click()}
         onDrop={handleDrop}
         onDragOver={e => e.preventDefault()}
