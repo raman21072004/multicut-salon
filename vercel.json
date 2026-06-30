@@ -2,8 +2,7 @@
   "buildCommand": "npm run install-deps && npm run build",
   "outputDirectory": "multicut-salon (4)/artifacts/salon/dist/public",
   "installCommand": "npm install",
-  "cleanUrls": true,
   "rewrites": [
-    { "source": "/:path*", "destination": "/index.html" }
+    { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
