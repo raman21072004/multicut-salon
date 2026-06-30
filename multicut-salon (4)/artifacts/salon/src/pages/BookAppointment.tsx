@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useSearch } from "wouter";
+import { Link, useSearch } from "wouter";
 import { supabase } from "@/lib/supabase";
 import { Service, Stylist } from "@/lib/types";
 import Navbar from "@/components/Navbar";
@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { CheckCircle, Calendar, Clock, Scissors } from "lucide-react";
 import { fallbackServices, fallbackStylists } from "@/lib/fallbackData";
 import { isMissingTableError, queueLocalAppointment } from "@/lib/offlineQueue";
+import { formatPrice } from "@/lib/utils";
 
 const timeSlots = ["9:00 AM","9:30 AM","10:00 AM","10:30 AM","11:00 AM","11:30 AM","12:00 PM","12:30 PM","1:00 PM","1:30 PM","2:00 PM","2:30 PM","3:00 PM","3:30 PM","4:00 PM","4:30 PM","5:00 PM","5:30 PM","6:00 PM","6:30 PM","7:00 PM"];
 
@@ -44,7 +45,7 @@ export default function BookAppointment() {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.name || !form.phone || !form.date || !form.time) {
+    if (!form.name || !form.date || !form.time) {
       toast({ title: "Please fill all required fields", variant: "destructive" }); return;
     }
     setLoading(true);
@@ -82,7 +83,9 @@ export default function BookAppointment() {
           <p className="text-muted-foreground mb-8">We've received your appointment request for <strong>{form.date}</strong> at <strong>{form.time}</strong>. We'll confirm within 24 hours via phone or email.</p>
           <div className="flex gap-4 justify-center">
             <Button onClick={() => { setSubmitted(false); setForm({ name:"",phone:"",email:"",service_id:"",stylist_id:"",date:"",time:"",notes:"" }); }}>Book Another</Button>
-            <Button variant="outline" onClick={() => window.location.href = "/"}>Back to Home</Button>
+            <Button asChild variant="outline">
+              <Link href="/">Back to Home</Link>
+            </Button>
           </div>
         </div>
       </div>
@@ -128,8 +131,8 @@ export default function BookAppointment() {
                 <Input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="Your name" required className="bg-background" />
               </div>
               <div className="space-y-1.5">
-                <Label>Phone *</Label>
-                <Input value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} placeholder="+1 234 567 8900" required className="bg-background" />
+                <Label>Phone</Label>
+                <Input value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} placeholder="+1 234 567 8900" className="bg-background" />
               </div>
             </div>
             <div className="space-y-1.5">
@@ -142,7 +145,7 @@ export default function BookAppointment() {
                 <Select value={form.service_id} onValueChange={v => setForm(f => ({ ...f, service_id: v }))}>
                   <SelectTrigger className="bg-background"><SelectValue placeholder="Select a service" /></SelectTrigger>
                   <SelectContent>
-                    {services.map(s => <SelectItem key={s.id} value={s.id}>{s.name} — ₹{s.price}</SelectItem>)}
+                    {services.map(s => <SelectItem key={s.id} value={s.id}>{s.name} — {formatPrice(s.price)}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>

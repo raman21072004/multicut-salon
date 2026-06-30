@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import ImageUpload from "@/components/ImageUpload";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Pencil, Trash2, Star } from "lucide-react";
+import { formatPrice } from "@/lib/utils";
 
 interface Service { id: string; name: string; slug: string; category: string; price: number; duration: number; description: string; image_url: string; featured: boolean; }
 
@@ -110,7 +111,7 @@ export default function AdminServices() {
                           </div>
                         </td>
                         <td className="px-4 py-3 text-muted-foreground">{s.category}</td>
-                        <td className="px-4 py-3 text-primary font-medium">₹{s.price}</td>
+                        <td className="px-4 py-3 text-primary font-medium">{formatPrice(s.price)}</td>
                         <td className="px-4 py-3 text-muted-foreground">{s.duration} min</td>
                         <td className="px-4 py-3">
                           <button onClick={() => toggleFeatured(s.id, s.featured)} title="Toggle featured"

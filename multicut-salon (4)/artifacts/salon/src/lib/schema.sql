@@ -139,26 +139,64 @@ alter table reviews enable row level security;
 alter table contacts enable row level security;
 
 -- Public reads
-create policy if not exists "public read settings" on settings for select using (true);
-create policy if not exists "public read services" on services for select using (true);
-create policy if not exists "public read stylists" on stylists for select using (true);
-create policy if not exists "public read gallery" on gallery for select using (true);
-create policy if not exists "public read reviews" on reviews for select using (true);
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'settings' AND policyname = 'public read settings') THEN
+    CREATE POLICY "public read settings" ON settings FOR SELECT USING (true);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'services' AND policyname = 'public read services') THEN
+    CREATE POLICY "public read services" ON services FOR SELECT USING (true);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'stylists' AND policyname = 'public read stylists') THEN
+    CREATE POLICY "public read stylists" ON stylists FOR SELECT USING (true);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'gallery' AND policyname = 'public read gallery') THEN
+    CREATE POLICY "public read gallery" ON gallery FOR SELECT USING (true);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'reviews' AND policyname = 'public read reviews') THEN
+    CREATE POLICY "public read reviews" ON reviews FOR SELECT USING (true);
+  END IF;
+END $$;
 
 -- Public inserts (booking form, contact form)
-create policy if not exists "public insert appointments" on appointments for insert with check (true);
-create policy if not exists "public insert contacts" on contacts for insert with check (true);
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'appointments' AND policyname = 'public insert appointments') THEN
+    CREATE POLICY "public insert appointments" ON appointments FOR INSERT WITH CHECK (true);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'contacts' AND policyname = 'public insert contacts') THEN
+    CREATE POLICY "public insert contacts" ON contacts FOR INSERT WITH CHECK (true);
+  END IF;
+END $$;
 
 -- Authenticated full access (admin operations)
-create policy if not exists "auth full settings" on settings for all using (auth.role() = 'authenticated');
-create policy if not exists "auth full services" on services for all using (auth.role() = 'authenticated');
-create policy if not exists "auth full stylists" on stylists for all using (auth.role() = 'authenticated');
-create policy if not exists "auth full gallery" on gallery for all using (auth.role() = 'authenticated');
-create policy if not exists "auth full reviews" on reviews for all using (auth.role() = 'authenticated');
-create policy if not exists "auth full appointments" on appointments for all using (auth.role() = 'authenticated');
-create policy if not exists "auth full contacts" on contacts for all using (auth.role() = 'authenticated');
-create policy if not exists "auth read profiles" on profiles for select using (auth.role() = 'authenticated');
-create policy if not exists "auth manage profiles" on profiles for all using (auth.role() = 'authenticated');
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'settings' AND policyname = 'auth full settings') THEN
+    CREATE POLICY "auth full settings" ON settings FOR ALL USING (auth.role() = 'authenticated') WITH CHECK (auth.role() = 'authenticated');
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'services' AND policyname = 'auth full services') THEN
+    CREATE POLICY "auth full services" ON services FOR ALL USING (auth.role() = 'authenticated') WITH CHECK (auth.role() = 'authenticated');
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'stylists' AND policyname = 'auth full stylists') THEN
+    CREATE POLICY "auth full stylists" ON stylists FOR ALL USING (auth.role() = 'authenticated') WITH CHECK (auth.role() = 'authenticated');
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'gallery' AND policyname = 'auth full gallery') THEN
+    CREATE POLICY "auth full gallery" ON gallery FOR ALL USING (auth.role() = 'authenticated') WITH CHECK (auth.role() = 'authenticated');
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'reviews' AND policyname = 'auth full reviews') THEN
+    CREATE POLICY "auth full reviews" ON reviews FOR ALL USING (auth.role() = 'authenticated') WITH CHECK (auth.role() = 'authenticated');
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'appointments' AND policyname = 'auth full appointments') THEN
+    CREATE POLICY "auth full appointments" ON appointments FOR ALL USING (auth.role() = 'authenticated') WITH CHECK (auth.role() = 'authenticated');
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'contacts' AND policyname = 'auth full contacts') THEN
+    CREATE POLICY "auth full contacts" ON contacts FOR ALL USING (auth.role() = 'authenticated') WITH CHECK (auth.role() = 'authenticated');
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'profiles' AND policyname = 'auth read profiles') THEN
+    CREATE POLICY "auth read profiles" ON profiles FOR SELECT USING (auth.role() = 'authenticated');
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'profiles' AND policyname = 'auth manage profiles') THEN
+    CREATE POLICY "auth manage profiles" ON profiles FOR ALL USING (auth.role() = 'authenticated') WITH CHECK (auth.role() = 'authenticated');
+  END IF;
+END $$;
 
 -- Auto-create profile on signup
 create or replace function handle_new_user()
@@ -178,54 +216,14 @@ create trigger on_auth_user_created
 
 -- ============================================================
 -- SEED DATA — SERVICES
+-- Run services-seed.sql AFTER this file (69 real Multicut services)
 -- ============================================================
-insert into services (name, slug, category, price, duration, description, image_url, featured, sort_order) values
-  ('Haircut & Style', 'haircut-style', 'Hair', 45, 60,
-   'Precision cut with blowout finish tailored to your face shape and lifestyle.',
-   'https://images.unsplash.com/photo-1622288432450-277d0fef5ed6?w=600&q=80', true, 1),
-
-  ('Color & Highlights', 'color-highlights', 'Color', 120, 150,
-   'Full color or highlights with professional toner for vibrant, lasting results.',
-   'https://images.unsplash.com/photo-1560869713-da86a9ec0744?w=600&q=80', true, 2),
-
-  ('Balayage', 'balayage', 'Color', 180, 180,
-   'Hand-painted natural highlights for a sun-kissed dimensional look.',
-   'https://images.unsplash.com/photo-1562322140-8baeececf3df?w=600&q=80', true, 3),
-
-  ('Beard Trim & Shape', 'beard-trim', 'Grooming', 25, 30,
-   'Expert shaping and defining of your beard to complement your facial features.',
-   'https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=600&q=80', false, 4),
-
-  ('Deep Conditioning', 'deep-conditioning', 'Treatment', 55, 45,
-   'Intensive moisture treatment to restore health, shine and luminosity to dry hair.',
-   'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=600&q=80', false, 5),
-
-  ('Keratin Treatment', 'keratin-treatment', 'Treatment', 200, 120,
-   'Smoothing and frizz-control treatment for silky, manageable hair that lasts months.',
-   'https://images.unsplash.com/photo-1512690459411-b9245aed614b?w=600&q=80', true, 6),
-
-  ('Hair Spa', 'hair-spa', 'Treatment', 70, 60,
-   'Relaxing scalp massage with nourishing oil treatment and steam therapy.',
-   'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=600&q=80', false, 7),
-
-  ('Bridal Hair', 'bridal-hair', 'Specialty', 350, 180,
-   'Complete bridal hair styling with trial session — from intricate updos to flowing waves.',
-   'https://images.unsplash.com/photo-1519741497674-611481863552?w=600&q=80', true, 8),
-
-  ('Hair Rebonding', 'hair-rebonding', 'Treatment', 150, 180,
-   'Permanent straightening technique for naturally straight, frizz-free hair.',
-   'https://images.unsplash.com/photo-1522337660859-02fbefca4702?w=600&q=80', false, 9),
-
-  ('Blow Dry & Style', 'blow-dry', 'Hair', 30, 45,
-   'Professional blowout for a smooth, voluminous finish that lasts all day.',
-   'https://images.unsplash.com/photo-1605497788044-5a32c7078486?w=600&q=80', false, 10)
-
-on conflict (slug) do nothing;
 
 -- ============================================================
 -- SEED DATA — STYLISTS
 -- ============================================================
-insert into stylists (name, photo_url, experience, specialization, bio, availability, sort_order) values
+insert into stylists (name, photo_url, experience, specialization, bio, availability, sort_order)
+select * from (values
   ('Zara M.', 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&q=80',
    '8 years', 'Balayage & Color',
    'Zara brings artistry and precision to every color service, creating looks that turn heads wherever you go.', 'Tue–Sun', 1),
@@ -237,13 +235,14 @@ insert into stylists (name, photo_url, experience, specialization, bio, availabi
   ('Isla R.', 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&q=80',
    '10 years', 'Treatments & Texture',
    'Isla transforms damaged hair into healthy, luminous locks with her restorative techniques.', 'Tue–Sat', 3)
-
-on conflict do nothing;
+) as v(name, photo_url, experience, specialization, bio, availability, sort_order)
+where not exists (select 1 from stylists s where s.name = v.name);
 
 -- ============================================================
 -- SEED DATA — REVIEWS
 -- ============================================================
-insert into reviews (name, rating, review, photo_url) values
+insert into reviews (name, rating, review, photo_url)
+select * from (values
   ('Sarah L.', 5,
    'Best haircut I''ve ever had. Zara understood exactly what I wanted and delivered something even better. I won''t go anywhere else.',
    'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&q=80'),
@@ -263,13 +262,14 @@ insert into reviews (name, rating, review, photo_url) values
   ('Meera V.', 5,
    'Came in for a hair spa and left feeling completely rejuvenated. The salon is so clean and the ambience is amazing.',
    'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=100&q=80')
-
-on conflict do nothing;
+) as v(name, rating, review, photo_url)
+where not exists (select 1 from reviews r where r.name = v.name and r.review = v.review);
 
 -- ============================================================
 -- SEED DATA — GALLERY (16 images)
 -- ============================================================
-insert into gallery (image_url, caption, category, sort_order) values
+insert into gallery (image_url, caption, category, sort_order)
+select * from (values
   ('https://images.unsplash.com/photo-1562322140-8baeececf3df?w=600&q=80', 'Blonde balayage transformation', 'Color', 1),
   ('https://images.unsplash.com/photo-1605497788044-5a32c7078486?w=600&q=80', 'Precision cut and style', 'Haircut', 2),
   ('https://images.unsplash.com/photo-1560066984-138dadb4c035?w=600&q=80', 'Our premium salon space', 'Interior', 3),
@@ -286,8 +286,8 @@ insert into gallery (image_url, caption, category, sort_order) values
   ('https://images.unsplash.com/photo-1519741497674-611481863552?w=600&q=80', 'Bridal hair styling', 'Specialty', 14),
   ('https://images.unsplash.com/photo-1626854578939-66f30a27cfca?w=600&q=80', 'Vivid color work', 'Color', 15),
   ('https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=600&q=80', 'Beard grooming', 'Grooming', 16)
-
-on conflict do nothing;
+) as v(image_url, caption, category, sort_order)
+where not exists (select 1 from gallery g where g.image_url = v.image_url and g.sort_order = v.sort_order);
 
 -- ============================================================
 -- STORAGE BUCKETS (create these manually in Supabase → Storage)
@@ -297,28 +297,3 @@ on conflict do nothing;
 -- service-images   (public)
 -- logos            (public)
 -- website-assets   (public)
-
--- Enable RLS Policies for Storage Buckets
-create policy "Allow authenticated uploads to service-images" on storage.objects for insert to authenticated with check (bucket_id = 'service-images');
-create policy "Allow authenticated uploads to gallery-images" on storage.objects for insert to authenticated with check (bucket_id = 'gallery-images');
-create policy "Allow authenticated uploads to stylist-images" on storage.objects for insert to authenticated with check (bucket_id = 'stylist-images');
-create policy "Allow authenticated uploads to logos" on storage.objects for insert to authenticated with check (bucket_id = 'logos');
-create policy "Allow authenticated uploads to website-assets" on storage.objects for insert to authenticated with check (bucket_id = 'website-assets');
-
-create policy "Allow authenticated updates to service-images" on storage.objects for update to authenticated with check (bucket_id = 'service-images');
-create policy "Allow authenticated updates to gallery-images" on storage.objects for update to authenticated with check (bucket_id = 'gallery-images');
-create policy "Allow authenticated updates to stylist-images" on storage.objects for update to authenticated with check (bucket_id = 'stylist-images');
-create policy "Allow authenticated updates to logos" on storage.objects for update to authenticated with check (bucket_id = 'logos');
-create policy "Allow authenticated updates to website-assets" on storage.objects for update to authenticated with check (bucket_id = 'website-assets');
-
-create policy "Allow authenticated deletes to service-images" on storage.objects for delete to authenticated using (bucket_id = 'service-images');
-create policy "Allow authenticated deletes to gallery-images" on storage.objects for delete to authenticated using (bucket_id = 'gallery-images');
-create policy "Allow authenticated deletes to stylist-images" on storage.objects for delete to authenticated using (bucket_id = 'stylist-images');
-create policy "Allow authenticated deletes to logos" on storage.objects for delete to authenticated using (bucket_id = 'logos');
-create policy "Allow authenticated deletes to website-assets" on storage.objects for delete to authenticated using (bucket_id = 'website-assets');
-
-create policy "Allow public read access to service-images" on storage.objects for select to public using (bucket_id = 'service-images');
-create policy "Allow public read access to gallery-images" on storage.objects for select to public using (bucket_id = 'gallery-images');
-create policy "Allow public read access to stylist-images" on storage.objects for select to public using (bucket_id = 'stylist-images');
-create policy "Allow public read access to logos" on storage.objects for select to public using (bucket_id = 'logos');
-create policy "Allow public read access to website-assets" on storage.objects for select to public using (bucket_id = 'website-assets');

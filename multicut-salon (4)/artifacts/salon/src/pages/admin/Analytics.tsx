@@ -7,6 +7,7 @@ import {
   LineChart, Line, PieChart, Pie, Cell, Legend
 } from "recharts";
 import { TrendingUp, Calendar, Clock, IndianRupee, Scissors, Users, Image, MessageSquare } from "lucide-react";
+import { formatPrice } from "@/lib/utils";
 
 interface Stats {
   total: number; pending: number; confirmed: number; cancelled: number; completed: number;
@@ -100,7 +101,7 @@ export default function AdminAnalytics() {
     { label: "Total Bookings", value: stats.total, icon: Calendar, color: "text-primary" },
     { label: "Pending Review", value: stats.pending, icon: Clock, color: "text-yellow-400" },
     { label: "Completed", value: stats.completed, icon: TrendingUp, color: "text-green-400" },
-    { label: "Est. Revenue", value: `₹${stats.revenue.toLocaleString()}`, icon: IndianRupee, color: "text-primary" },
+    { label: "Est. Revenue", value: formatPrice(stats.revenue), icon: IndianRupee, color: "text-primary" },
     { label: "Services", value: stats.services, icon: Scissors, color: "text-primary" },
     { label: "Stylists", value: stats.stylists, icon: Users, color: "text-primary" },
     { label: "Gallery Images", value: stats.gallery, icon: Image, color: "text-primary" },
@@ -220,8 +221,8 @@ export default function AdminAnalytics() {
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 py-2">
               {[
-                { label: "Total Revenue", value: `₹${stats.revenue.toLocaleString()}` },
-                { label: "Avg per Booking", value: stats.completed ? `₹${(stats.revenue / stats.completed).toFixed(0)}` : "₹0" },
+                { label: "Total Revenue", value: formatPrice(stats.revenue) },
+                { label: "Avg per Booking", value: stats.completed ? formatPrice(Math.round(stats.revenue / stats.completed)) : formatPrice(0) },
                 { label: "Completion Rate", value: stats.total ? `${Math.round((stats.completed / stats.total) * 100)}%` : "0%" },
                 { label: "Cancellation Rate", value: stats.total ? `${Math.round((stats.cancelled / stats.total) * 100)}%` : "0%" },
               ].map(({ label, value }) => (

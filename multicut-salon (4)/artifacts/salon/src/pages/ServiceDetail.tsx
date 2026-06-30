@@ -7,6 +7,8 @@ import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Clock, IndianRupee, ArrowLeft, Tag } from "lucide-react";
 import { handleImageError } from "@/lib/imageFallback";
+import { formatPrice } from "@/lib/utils";
+import { fallbackServices } from "@/lib/fallbackData";
 
 export default function ServiceDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -18,14 +20,26 @@ export default function ServiceDetail() {
     if (!slug) return;
     const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slug);
     const query = isUuid
-      ? supabase.from("services").select("*").or(`slug.eq.${slug},id.eq.${slug}`).single()
-      : supabase.from("services").select("*").eq("slug", slug).single();
+      ? supabase.from("services").select("*").eq("id", slug).maybeSingle()
+      : supabase.from("services").select("*").eq("slug", slug).maybeSingle();
 
     query.then(({ data }) => {
-      if (data) {
-        setService(data);
-        supabase.from("services").select("*").eq("category", data.category).neq("id", data.id).limit(3)
-          .then(({ data: rel }) => setRelated(rel ?? []));
+      const match = data ?? fallbackServices.find(s => s.slug === slug || s.id === slug) ?? null;
+      setService(match);
+      if (match) {
+        supabase.from("services").select("*").eq("category", match.category).neq("id", match.id).limit(3)
+          .then(({ data: rel }) => {
+            const relatedFromDb = rel ?? [];
+            if (relatedFromDb.length > 0) {
+              setRelated(relatedFromDb);
+              return;
+            }
+            setRelated(
+              fallbackServices
+                .filter(s => s.category === match.category && s.id !== match.id)
+                .slice(0, 3),
+            );
+          });
       }
       setLoading(false);
     });
@@ -74,7 +88,7 @@ export default function ServiceDetail() {
                   <IndianRupee className="w-5 h-5 text-primary" />
                   <div>
                     <div className="text-xs text-muted-foreground">Price</div>
-                    <div className="text-xl font-bold text-primary">₹{service.price}</div>
+                    <div className="text-xl font-bold text-primary">{formatPrice(service.price)}</div>
                   </div>
                 </div>
                 <div className="bg-card border border-border rounded-xl p-4 flex items-center gap-3">
@@ -112,7 +126,7 @@ export default function ServiceDetail() {
                       <div className="text-xs text-primary font-semibold uppercase mb-1">{s.category}</div>
                       <h3 className="font-semibold">{s.name}</h3>
                       <div className="flex justify-between items-center mt-2">
-                        <span className="text-primary font-bold">₹{s.price}</span>
+                        <span className="text-primary font-bold">{formatPrice(s.price)}</span>
                         <span className="text-xs text-muted-foreground">{s.duration} min</span>
                       </div>
                     </div>

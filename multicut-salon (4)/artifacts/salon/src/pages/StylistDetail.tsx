@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Clock, Scissors } from "lucide-react";
 import { FaFacebookF, FaInstagram } from "react-icons/fa6";
 import { handleImageError } from "@/lib/imageFallback";
+import { fallbackStylists } from "@/lib/fallbackData";
 
 export default function StylistDetail() {
   const { id } = useParams<{ id: string }>();
@@ -16,8 +17,8 @@ export default function StylistDetail() {
 
   useEffect(() => {
     if (!id) return;
-    supabase.from("stylists").select("*").eq("id", id).single().then(({ data }) => {
-      setStylist(data);
+    supabase.from("stylists").select("*").eq("id", id).maybeSingle().then(({ data }) => {
+      setStylist(data ?? fallbackStylists.find(s => s.id === id) ?? null);
       setLoading(false);
     });
   }, [id]);

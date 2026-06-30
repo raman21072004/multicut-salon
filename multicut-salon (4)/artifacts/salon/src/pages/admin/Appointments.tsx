@@ -5,9 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { ToastAction } from "@/components/ui/toast";
 import { Trash2, CheckCircle, XCircle, Clock, Search } from "lucide-react";
-import { FaWhatsapp } from "react-icons/fa";
 
 interface Appointment {
   id: string; name: string; phone: string; email: string;
@@ -42,52 +40,10 @@ export default function AdminAppointments() {
 
   useEffect(() => { loadData(); }, []);
 
-  const getWhatsAppLink = (appt: Appointment, statusOverride?: string) => {
-    const status = statusOverride || appt.status;
-    const serviceName = appt.services?.name || "selected service";
-    const stylistText = appt.stylists?.name ? ` with ${appt.stylists.name}` : "";
-    
-    let msg = "";
-    if (status === "confirmed") {
-      msg = `Hi ${appt.name}, your appointment for ${serviceName}${stylistText} at Multicut Salon is CONFIRMED for ${appt.date} at ${appt.time}. We look forward to seeing you!`;
-    } else if (status === "cancelled") {
-      msg = `Hi ${appt.name}, we regret to inform you that your appointment for ${serviceName}${stylistText} at Multicut Salon on ${appt.date} at ${appt.time} has been CANCELLED. Please let us know if you'd like to reschedule.`;
-    } else {
-      msg = `Hi ${appt.name}, this is about your appointment for ${serviceName}${stylistText} at Multicut Salon on ${appt.date} at ${appt.time}.`;
-    }
-    
-    let cleanPhone = appt.phone ? appt.phone.trim() : "";
-    if (cleanPhone.startsWith("+")) {
-      cleanPhone = cleanPhone.replace(/\D/g, "");
-    } else {
-      cleanPhone = cleanPhone.replace(/\D/g, "");
-      if (cleanPhone.length === 10) {
-        cleanPhone = "91" + cleanPhone; // India country code
-      }
-    }
-    
-    return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`;
-  };
-
   const updateStatus = async (id: string, status: string) => {
-    const appt = appointments.find(a => a.id === id);
     const { error } = await supabase.from("appointments").update({ status }).eq("id", id);
     if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
-    
-    if (appt && appt.phone && (status === "confirmed" || status === "cancelled")) {
-      const whatsappLink = getWhatsAppLink(appt, status);
-      toast({
-        title: `Marked as ${status}`,
-        description: `Notify ${appt.name} via WhatsApp?`,
-        action: (
-          <ToastAction altText="Send WhatsApp" onClick={() => window.open(whatsappLink, "_blank")}>
-            Send
-          </ToastAction>
-        ),
-      });
-    } else {
-      toast({ title: `Marked as ${status}` });
-    }
+    toast({ title: `Marked as ${status}` });
     loadData();
   };
 
@@ -162,20 +118,7 @@ export default function AdminAppointments() {
                     <tr key={a.id} className="hover:bg-secondary/30 transition-colors" data-testid={`row-appointment-${a.id}`}>
                       <td className="px-4 py-3">
                         <div className="font-medium">{a.name}</div>
-                        <div className="flex items-center gap-1.5 mt-0.5">
-                          <span className="text-xs text-muted-foreground">{a.phone}</span>
-                          {a.phone && (
-                            <a
-                              href={getWhatsAppLink(a)}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-green-500 hover:text-green-400 transition-colors"
-                              title="Chat on WhatsApp"
-                            >
-                              <FaWhatsapp className="w-3.5 h-3.5 inline-block" />
-                            </a>
-                          )}
-                        </div>
+                        <div className="text-xs text-muted-foreground">{a.phone}</div>
                       </td>
                       <td className="px-4 py-3 text-muted-foreground">{a.services?.name ?? "—"}</td>
                       <td className="px-4 py-3 text-muted-foreground">{a.stylists?.name ?? "—"}</td>
