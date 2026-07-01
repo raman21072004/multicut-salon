@@ -6,7 +6,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Clock, IndianRupee, ArrowLeft, Tag } from "lucide-react";
-import { handleImageError, shouldShowServiceImage, getCategoryIcon } from "@/lib/imageFallback";
+import { handleImageError, shouldShowServiceImage, getServiceImageFallback } from "@/lib/imageFallback";
 import { formatPrice } from "@/lib/utils";
 import { fallbackServices } from "@/lib/fallbackData";
 
@@ -115,12 +115,17 @@ export default function ServiceDetail() {
                 )}
                 <img
                   key={service.id}
-                  src={service.image_url}
+                  src={service.image_url || getServiceImageFallback(service.category)}
                   alt={service.name}
                   className={`w-full h-full object-cover transition-opacity duration-300 ${imageLoading ? "opacity-0" : "opacity-100"}`}
                   onLoad={() => setImageLoading(false)}
                   onError={e => {
                     setImageLoading(false);
+                    const fallback = getServiceImageFallback(service.category);
+                    if (e.currentTarget.src !== fallback) {
+                      e.currentTarget.src = fallback;
+                      return;
+                    }
                     handleImageError(e);
                   }}
                 />
@@ -203,8 +208,19 @@ export default function ServiceDetail() {
                     <div className="group bg-card border border-border rounded-xl overflow-hidden hover:border-primary/40 transition-all hover:-translate-y-1 cursor-pointer flex flex-col h-full">
                       {showImage && (
                         <div className="aspect-video overflow-hidden bg-secondary border-b border-border/50">
-                          <img src={s.image_url}
-                            alt={s.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onError={handleImageError} />
+                          <img
+                            src={s.image_url || getServiceImageFallback(s.category)}
+                            alt={s.name}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            onError={e => {
+                              const fallback = getServiceImageFallback(s.category);
+                              if (e.currentTarget.src !== fallback) {
+                                e.currentTarget.src = fallback;
+                                return;
+                              }
+                              handleImageError(e);
+                            }}
+                          />
                         </div>
                       )}
                       <div className="p-4 flex-1 flex flex-col justify-between">

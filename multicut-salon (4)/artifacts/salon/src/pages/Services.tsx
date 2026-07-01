@@ -6,7 +6,7 @@ import { fallbackServices } from "@/lib/fallbackData";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { handleImageError, shouldShowServiceImage, CATEGORY_FALLBACK_IMAGES } from "@/lib/imageFallback";
+import { handleImageError, shouldShowServiceImage, CATEGORY_FALLBACK_IMAGES, getServiceImageFallback } from "@/lib/imageFallback";
 
 // Category metadata: icon + Supabase storage image key
 const CATEGORY_META: Record<string, { icon: string; imageKey: string }> = {
@@ -102,8 +102,7 @@ export default function Services() {
               ? Array.from({ length: 6 }).map((_, i) => (
                   <div key={i} className="h-20 bg-card rounded-2xl animate-pulse border border-border" />
                 ))
-              : categories.map(cat => {
-                  const meta = CATEGORY_META[cat] ?? { icon: "💈", imageKey: "" };
+                : categories.map(cat => {
                   const isOpen = activeCategory === cat;
                   const items = grouped[cat] ?? [];
 
@@ -127,7 +126,6 @@ export default function Services() {
                         className="w-full flex items-center gap-3 px-6 py-5 text-left hover:bg-secondary/30 transition-colors"
                         aria-expanded={isOpen}
                       >
-                        <span className="text-2xl">{meta.icon}</span>
                         <div className="flex-1 min-w-0">
                           <div className="font-semibold text-base">{cat}</div>
                           <div className="text-xs text-muted-foreground mt-0.5">{items.length} service{items.length !== 1 ? "s" : ""}</div>
@@ -188,7 +186,7 @@ export default function Services() {
                   onClick={() => setActiveCategory(cat === activeCategory ? null : cat)}
                   className={`px-4 py-1.5 rounded-full text-sm font-medium border transition-colors shrink-0 ${activeCategory === cat ? "bg-primary text-primary-foreground border-primary" : "border-border text-muted-foreground hover:border-primary/50 hover:text-foreground"}`}
                 >
-                  {CATEGORY_META[cat]?.icon} {cat}
+                  {cat}
                 </button>
               ))}
             </div>
@@ -212,10 +210,17 @@ export default function Services() {
                           {showImage && (
                             <div className="aspect-video overflow-hidden bg-secondary border-b border-border/50">
                               <img
-                                src={s.image_url}
+                                src={s.image_url || getServiceImageFallback(s.category)}
                                 alt={s.name}
                                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                                onError={handleImageError}
+                                onError={e => {
+                                  const fallback = getServiceImageFallback(s.category);
+                                  if (e.currentTarget.src !== fallback) {
+                                    e.currentTarget.src = fallback;
+                                    return;
+                                  }
+                                  handleImageError(e);
+                                }}
                               />
                             </div>
                           )}

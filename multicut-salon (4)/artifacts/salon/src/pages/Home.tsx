@@ -8,7 +8,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Star, ChevronDown, ArrowRight, Scissors } from "lucide-react";
-import { handleImageError, shouldShowServiceImage, getCategoryIcon } from "@/lib/imageFallback";
+import { handleImageError, shouldShowServiceImage, getServiceImageFallback } from "@/lib/imageFallback";
 
 export default function Home() {
   const { settings } = useSalonSettings();
@@ -106,10 +106,17 @@ export default function Home() {
                     {showImage && (
                       <div className="aspect-video overflow-hidden bg-secondary border-b border-border/50">
                         <img
-                          src={s.image_url}
+                          src={s.image_url || getServiceImageFallback(s.category)}
                           alt={s.name}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                          onError={handleImageError}
+                          onError={e => {
+                            const fallback = getServiceImageFallback(s.category);
+                            if (e.currentTarget.src !== fallback) {
+                              e.currentTarget.src = fallback;
+                              return;
+                            }
+                            handleImageError(e);
+                          }}
                         />
                       </div>
                     )}

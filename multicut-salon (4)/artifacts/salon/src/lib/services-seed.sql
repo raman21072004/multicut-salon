@@ -1,4 +1,4 @@
--- ============================================================
+ -- ============================================================
 -- MULTICUT SALON — Real Services Seed Data
 -- Run in Supabase SQL Editor AFTER running schema.sql
 -- Generated from fallbackData.ts (69 services)
@@ -22,12 +22,12 @@ INSERT INTO services (name, slug, category, price, duration, description, image_
 ('Hair Spa – L''Oréal Treatment', 'hair-spa-loreal-treatment', 'Hair Spa', 350, 60, 'Premium L''Oréal treatment spa for intense restoration.', 'https://images.unsplash.com/photo-1560066984-138dadb4c035?w=600&q=80', false, 13),
 ('Hair Spa – Schwarzkopf', 'hair-spa-schwarzkopf', 'Hair Spa', 350, 45, 'Professional Schwarzkopf spa for healthy, vibrant hair.', 'https://images.unsplash.com/photo-1560066984-138dadb4c035?w=600&q=80', false, 14),
 ('Hair Spa – Schwarzkopf Treatment', 'hair-spa-schwarzkopf-treatment', 'Hair Spa', 400, 60, 'Elite Schwarzkopf treatment spa for ultimate hair revival.', 'https://images.unsplash.com/photo-1560066984-138dadb4c035?w=600&q=80', false, 15),
-('Hair Colour – Matrix', 'hair-colour-matrix', 'Hair Colour', 250, 60, 'Vibrant Matrix colour for a bold, lasting transformation.', 'https://images.unsplash.com/photo-1562322140-8baeececf3df?w=600&q=80', true, 16),
-('Hair Colour – L''Oréal', 'hair-colour-loreal', 'Hair Colour', 300, 60, 'Rich L''Oréal colour with fade-resistant shine.', 'https://images.unsplash.com/photo-1562322140-8baeececf3df?w=600&q=80', false, 17),
-('Hair Colour – Schwarzkopf', 'hair-colour-schwarzkopf', 'Hair Colour', 350, 60, 'Professional Schwarzkopf colour for intense depth.', 'https://images.unsplash.com/photo-1562322140-8baeececf3df?w=600&q=80', false, 18),
-('Hair Colour – L''Oréal Inoa', 'hair-colour-loreal-inoa', 'Hair Colour', 350, 75, 'Ammonia-free Inoa colour — gentle, vivid and long-lasting.', 'https://images.unsplash.com/photo-1562322140-8baeececf3df?w=600&q=80', false, 19),
-('Hair Colour – Matrix No Ammonia', 'hair-colour-matrix-no-ammonia', 'Hair Colour', 300, 60, 'Gentle ammonia-free Matrix formula for sensitive scalps.', 'https://images.unsplash.com/photo-1562322140-8baeececf3df?w=600&q=80', false, 20),
-('Hair Colour – Schwarzkopf Essensity', 'hair-colour-schwarzkopf-essensity', 'Hair Colour', 400, 75, 'Oil-based Essensity colour — pure, natural and nourishing.', 'https://images.unsplash.com/photo-1562322140-8baeececf3df?w=600&q=80', false, 21),
+('Hair Colour – Matrix', 'hair-colour-matrix', 'Hair Colour', 250, 60, 'Vibrant Matrix colour for a bold, lasting transformation.', 'https://images.unsplash.com/photo-1626854578939-66f30a27cfca?w=600&q=80', true, 16),
+('Hair Colour – L''Oréal', 'hair-colour-loreal', 'Hair Colour', 300, 60, 'Rich L''Oréal colour with fade-resistant shine.', 'https://images.unsplash.com/photo-1626854578939-66f30a27cfca?w=600&q=80', false, 17),
+('Hair Colour – Schwarzkopf', 'hair-colour-schwarzkopf', 'Hair Colour', 350, 60, 'Professional Schwarzkopf colour for intense depth.', 'https://images.unsplash.com/photo-1626854578939-66f30a27cfca?w=600&q=80', false, 18),
+('Hair Colour – L''Oréal Inoa', 'hair-colour-loreal-inoa', 'Hair Colour', 350, 75, 'Ammonia-free Inoa colour — gentle, vivid and long-lasting.', 'https://images.unsplash.com/photo-1626854578939-66f30a27cfca?w=600&q=80', false, 19),
+('Hair Colour – Matrix No Ammonia', 'hair-colour-matrix-no-ammonia', 'Hair Colour', 300, 60, 'Gentle ammonia-free Matrix formula for sensitive scalps.', 'https://images.unsplash.com/photo-1626854578939-66f30a27cfca?w=600&q=80', false, 20),
+('Hair Colour – Schwarzkopf Essensity', 'hair-colour-schwarzkopf-essensity', 'Hair Colour', 400, 75, 'Oil-based Essensity colour — pure, natural and nourishing.', 'https://images.unsplash.com/photo-1626854578939-66f30a27cfca?w=600&q=80', false, 21),
 ('Beard Colour – Bigen', 'beard-colour-bigen', 'Beard Colour', 200, 30, 'Premium Bigen beard colour for a natural, even finish.', 'https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=600&q=80', false, 22),
 ('Beard Colour', 'beard-colour', 'Beard Colour', 100, 20, 'Standard beard colouring to cover greys effortlessly.', 'https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=600&q=80', false, 23),
 ('Hair Smoothing / Rebonding – Short to Medium', 'smoothing-short', 'Hair Treatment', 800, 120, 'Smoothing/rebonding for short to medium length hair.', 'https://images.unsplash.com/photo-1512690459411-b9245aed614b?w=600&q=80', true, 24),

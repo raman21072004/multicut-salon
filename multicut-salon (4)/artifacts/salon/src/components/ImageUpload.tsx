@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { uploadImage } from "@/lib/hooks";
 import { Button } from "@/components/ui/button";
 import { Upload, X, Image } from "lucide-react";
@@ -19,6 +19,11 @@ export default function ImageUpload({ bucket, folder, currentUrl, onUploaded, cl
   const [error, setError] = useState("");
 
   const aspectClass = aspect === "square" ? "aspect-square" : aspect === "video" ? "aspect-video" : "min-h-[120px]";
+
+  useEffect(() => {
+    setPreview(currentUrl || "");
+    setError("");
+  }, [currentUrl]);
 
   const handleFile = async (file: File) => {
     if (!file.type.startsWith("image/")) { setError("Please select an image file"); return; }
@@ -101,7 +106,7 @@ export default function ImageUpload({ bucket, folder, currentUrl, onUploaded, cl
         </Button>
       )}
       <input ref={inputRef} type="file" accept="image/*" className="hidden"
-        onChange={e => { const f = e.target.files?.[0]; if (f) handleFile(f); }} />
+        onChange={e => { const f = e.target.files?.[0]; if (f) handleFile(f); e.target.value = ""; }} />
     </div>
   );
 }

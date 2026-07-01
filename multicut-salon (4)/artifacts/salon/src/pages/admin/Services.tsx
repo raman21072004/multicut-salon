@@ -13,7 +13,18 @@ import { formatPrice } from "@/lib/utils";
 
 interface Service { id: string; name: string; slug: string; category: string; price: number; duration: number; description: string; image_url: string; featured: boolean; }
 
-const empty = { name: "", slug: "", category: "", price: 0, duration: 0, description: "", image_url: "", featured: false };
+type ServiceForm = {
+  name: string;
+  slug: string;
+  category: string;
+  price: string;
+  duration: string;
+  description: string;
+  image_url: string;
+  featured: boolean;
+};
+
+const empty: ServiceForm = { name: "", slug: "", category: "", price: "", duration: "", description: "", image_url: "", featured: false };
 
 function slugify(name: string) {
   return name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
@@ -39,12 +50,13 @@ export default function AdminServices() {
   const openAdd = () => { setEditing(null); setForm(empty); setOpen(true); };
   const openEdit = (s: Service) => {
     setEditing(s);
-    setForm({ name: s.name, slug: s.slug || "", category: s.category, price: s.price, duration: s.duration, description: s.description, image_url: s.image_url, featured: s.featured });
+    setForm({ name: s.name, slug: s.slug || "", category: s.category, price: String(s.price ?? ""), duration: String(s.duration ?? ""), description: s.description, image_url: s.image_url, featured: s.featured });
     setOpen(true);
   };
 
   const save = async () => {
     if (!form.name.trim()) { toast({ title: "Name is required", variant: "destructive" }); return; }
+    if (form.price.trim() === "" || form.duration.trim() === "") { toast({ title: "Price and duration are required", variant: "destructive" }); return; }
     setSaving(true);
     const payload = { ...form, price: Number(form.price), duration: Number(form.duration), slug: form.slug || slugify(form.name) };
     const { error } = editing
@@ -163,11 +175,11 @@ export default function AdminServices() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <Label>Price (₹)</Label>
-                <Input type="number" value={form.price} onChange={e => setForm(f => ({ ...f, price: Number(e.target.value) }))} className="bg-background" />
+                <Input inputMode="numeric" value={form.price} onChange={e => setForm(f => ({ ...f, price: e.target.value }))} className="bg-background" placeholder="0" />
               </div>
               <div className="space-y-1.5">
                 <Label>Duration (min)</Label>
-                <Input type="number" value={form.duration} onChange={e => setForm(f => ({ ...f, duration: Number(e.target.value) }))} className="bg-background" />
+                <Input inputMode="numeric" value={form.duration} onChange={e => setForm(f => ({ ...f, duration: e.target.value }))} className="bg-background" placeholder="0" />
               </div>
             </div>
             <div className="space-y-1.5">

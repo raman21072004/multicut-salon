@@ -20,5 +20,12 @@ export async function uploadImage(bucket: string, file: File, folder = ""): Prom
   const { data, error } = await supabase.storage.from(bucket).upload(path, file, { upsert: false });
   if (error) throw error;
   const { data: urlData } = supabase.storage.from(bucket).getPublicUrl(data.path);
-  return urlData.publicUrl;
+  if (urlData.publicUrl.includes("://")) return urlData.publicUrl;
+
+  return await new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(typeof reader.result === "string" ? reader.result : urlData.publicUrl);
+    reader.onerror = () => reject(new Error("Upload succeeded, but no public image URL was returned."));
+    reader.readAsDataURL(file);
+  });
 }

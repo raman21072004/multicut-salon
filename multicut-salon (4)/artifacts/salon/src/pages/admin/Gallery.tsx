@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import ImageUpload from "@/components/ImageUpload";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Pencil, Trash2, ImageIcon } from "lucide-react";
+import { handleImageError } from "@/lib/imageFallback";
 
 interface GalleryItem { id: string; image_url: string; caption: string; category: string; sort_order: number; }
 
@@ -93,7 +94,7 @@ export default function AdminGallery() {
               <div key={img.id} className="group relative aspect-square rounded-xl overflow-hidden border border-border bg-card">
                 <img src={img.image_url} alt={img.caption || "Gallery"}
                   className="w-full h-full object-cover"
-                  onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                  onError={handleImageError} />
                 <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-2">
                   <div className="flex gap-1 justify-end">
                     <Button size="sm" variant="ghost" className="h-7 px-2 text-white hover:text-primary bg-black/30"
