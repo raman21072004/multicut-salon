@@ -103,7 +103,7 @@ export default function Home() {
               return (
                 <Link key={s.id} href={`/services/${s.slug || s.id}`}>
                   <div className="group bg-card border border-border rounded-2xl overflow-hidden hover:border-primary/40 transition-all duration-300 hover:-translate-y-1 cursor-pointer flex flex-col h-full">
-                    {showImage ? (
+                    {showImage && (
                       <div className="aspect-video overflow-hidden bg-secondary border-b border-border/50">
                         <img
                           src={s.image_url}
@@ -111,10 +111,6 @@ export default function Home() {
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                           onError={handleImageError}
                         />
-                      </div>
-                    ) : (
-                      <div className="aspect-video bg-gradient-to-br from-primary/10 to-accent/5 flex items-center justify-center p-6 border-b border-border/50">
-                        <span className="text-4xl">{getCategoryIcon(s.category)}</span>
                       </div>
                     )}
                     <div className="p-6 flex-1 flex flex-col justify-between">

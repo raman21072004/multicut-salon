@@ -35,7 +35,6 @@ export default function Services() {
   const [services, setServices]         = useState<Service[]>(fallbackServices);
   const [loading, setLoading]           = useState(true);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
-  const [categoryImages, setCategoryImages] = useState<Record<string, string>>({});
   const [viewMode, setViewMode]         = useState<"grouped" | "grid">("grouped");
 
   // Fetch services from Supabase
@@ -46,15 +45,7 @@ export default function Services() {
     });
   }, []);
 
-  // Fetch category images from Supabase storage bucket "service-images"
-  useEffect(() => {
-    const imgs: Record<string, string> = {};
-    Object.entries(CATEGORY_META).forEach(([cat, meta]) => {
-      const { data } = supabase.storage.from("service-images").getPublicUrl(meta.imageKey);
-      if (data?.publicUrl) imgs[cat] = data.publicUrl;
-    });
-    setCategoryImages(imgs);
-  }, []);
+
 
   // Group services by category in defined order
   const grouped = CATEGORY_ORDER.reduce<Record<string, Service[]>>((acc, cat) => {
@@ -113,28 +104,19 @@ export default function Services() {
                 ))
               : categories.map(cat => {
                   const meta = CATEGORY_META[cat] ?? { icon: "💈", imageKey: "" };
-                  const imgUrl = categoryImages[cat];
                   const isOpen = activeCategory === cat;
                   const items = grouped[cat] ?? [];
 
                   return (
                     <div key={cat} className="border border-border rounded-2xl overflow-hidden bg-card transition-all">
-                      {/* Category image banner — only shown when open and image exists */}
+                      {/* Category image banner — only shown when open */}
                       {isOpen && (
                         <div className="w-full h-44 overflow-hidden bg-secondary/20 relative">
                           <img
-                            src={imgUrl || CATEGORY_FALLBACK_IMAGES[cat]}
+                            src={CATEGORY_FALLBACK_IMAGES[cat]}
                             alt={cat}
                             className="w-full h-full object-cover"
-                            onError={e => {
-                              const target = e.currentTarget;
-                              const fallback = CATEGORY_FALLBACK_IMAGES[cat];
-                              if (fallback && target.src !== fallback) {
-                                target.src = fallback;
-                              } else {
-                                target.style.display = "none";
-                              }
-                            }}
+                            onError={handleImageError}
                           />
                         </div>
                       )}

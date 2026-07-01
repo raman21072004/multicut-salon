@@ -277,7 +277,7 @@ select * from (values
   ('https://images.unsplash.com/photo-1634449571010-02389ed0f9b0?w=600&q=80', 'Expert styling session', 'Style', 5),
   ('https://images.unsplash.com/photo-1595476108010-b4d1f102b1b1?w=600&q=80', 'Beachy waves finish', 'Style', 6),
   ('https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=600&q=80', 'Deep conditioning treatment', 'Treatment', 7),
-  ('https://images.unsplash.com/photo-1526045612212-70caf35c14df?w=600&q=80', 'Blowout perfection', 'Style', 8),
+  ('https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=600&q=80', 'Blowout perfection', 'Style', 8),
   ('https://images.unsplash.com/photo-1562322140-8baeececf3df?w=600&q=80', 'Hand-painted balayage', 'Color', 9),
   ('https://images.unsplash.com/photo-1522337660859-02fbefca4702?w=600&q=80', 'Stylist at work', 'Behind the Scenes', 10),
   ('https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?w=600&q=80', 'Salon styling station', 'Interior', 11),
