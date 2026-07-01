@@ -17,6 +17,7 @@ export default function StylistDetail() {
 
   useEffect(() => {
     if (!id) return;
+    window.scrollTo(0, 0);
     supabase.from("stylists").select("*").eq("id", id).maybeSingle().then(({ data }) => {
       setStylist(data ?? fallbackStylists.find(s => s.id === id) ?? null);
       setLoading(false);

@@ -30,6 +30,9 @@ export default function ServiceDetail() {
   useEffect(() => {
     if (!slug) return;
     
+    // Scroll to top immediately when slug changes
+    window.scrollTo(0, 0);
+    
     // Set from local cache immediately to prevent page-load flash
     const matchLocal = fallbackServices.find(s => s.slug === slug || s.id === slug) ?? null;
     if (matchLocal) {
@@ -111,6 +114,7 @@ export default function ServiceDetail() {
                   </div>
                 )}
                 <img
+                  key={service.id}
                   src={service.image_url}
                   alt={service.name}
                   className={`w-full h-full object-cover transition-opacity duration-300 ${imageLoading ? "opacity-0" : "opacity-100"}`}
